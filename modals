@@ -1,0 +1,90 @@
+from django.db import models
+
+# Create your models here.
+
+class Login(models.Model):
+    username=models.CharField(max_length=100)
+    password=models.CharField(max_length=100)
+    type=models.CharField(max_length=40)
+
+class User(models.Model):
+    name=models.CharField(max_length=100)
+    email=models.EmailField(max_length=100)
+    phone=models.CharField(max_length=100)
+    place=models.CharField(max_length=100)
+    LOGIN = models.ForeignKey(Login, on_delete=models.CASCADE)
+
+
+class Charity(models.Model):
+     charity_name=models.CharField(max_length=100)
+     logo=models.CharField(max_length=100)
+     email=models.EmailField(max_length=100)
+     phone=models.CharField(max_length=100)
+     license_no=models.CharField(max_length=100)
+     place=models.CharField(max_length=100)
+     status=models.CharField(max_length=100)
+     post=models.CharField(max_length=100)
+     pin=models.BigIntegerField()
+     LOGIN=models.ForeignKey(Login,on_delete=models.CASCADE)
+
+class Donation_Request(models.Model):
+    title=models.CharField(max_length=100)
+    description=models.CharField(max_length=100)
+    purpose=models.CharField(max_length=100)
+    date=models.DateField()
+    amount_others=models.CharField(max_length=100)
+    CHARITY=models.ForeignKey(Charity,on_delete=models.CASCADE)
+
+
+class Donate_Amount(models.Model):
+    date=models.DateField()
+    status=models.CharField(max_length=100)
+    amount=models.BigIntegerField()
+    # CHARITY=models.ForeignKey(Charity,on_delete=models.CASCADE)
+    USER=models.ForeignKey(User,on_delete=models.CASCADE)
+    DONATION_REQUEST = models.ForeignKey(Donation_Request,on_delete=models.CASCADE)
+
+
+class Donate_Others(models.Model):
+    date=models.DateField()
+    status=models.CharField(max_length=100)
+    others=models.CharField(max_length=100)
+    unit=models.CharField(max_length=100)
+    DONATION_REQUEST = models.ForeignKey(Donation_Request,on_delete=models.CASCADE)
+    USER =models.ForeignKey(User,on_delete=models.CASCADE)
+    # CHARITY=models.ForeignKey(Charity,on_delete=models.CASCADE)
+
+
+
+class Donate(models.Model):
+    date=models.DateField()
+    amount=models.BigIntegerField()
+    CHARITY=models.ForeignKey(Charity,on_delete=models.CASCADE)
+    USER=models.ForeignKey(User,on_delete=models.CASCADE)
+
+class Donate2(models.Model):
+    date=models.DateField()
+    others=models.CharField(max_length=100)
+    CHARITY=models.ForeignKey(Charity,on_delete=models.CASCADE)
+    USER=models.ForeignKey(User,on_delete=models.CASCADE)
+
+class Complaints(models.Model):
+    date=models.DateField()
+    complaint=models.CharField(max_length=100)
+    reply=models.CharField(max_length=100)
+    status=models.CharField(max_length=100)
+    USER =models.ForeignKey(User,on_delete=models.CASCADE)
+
+class Feedback(models.Model):
+    date=models.DateField()
+    feedback=models.CharField(max_length=100)
+    CHARITY=models.ForeignKey(Charity,on_delete=models.CASCADE)
+    USER = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class Review_Rating(models.Model):
+    date=models.DateField()
+    review=models.CharField(max_length=100)
+    rating=models.CharField(max_length=100)
+    USER=models.ForeignKey(User,on_delete=models.CASCADE)
+
+
