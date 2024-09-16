@@ -1,0 +1,629 @@
+import datetime
+
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+
+from .models import *
+
+# Create your views here.
+#admin
+def adminHome(request):
+    return render(request,"admin/adminHome.html")
+
+def login(request):
+    return render(request, "login.html")
+def login_post(request):
+    username=request.POST['textfield']
+    password=request.POST['textfield2']
+
+    lobj=Login.objects.filter(username=username,password=password)
+    if lobj.exists():
+          lob=Login.objects.get(username=username,password=password)
+          request.session['lid']=lob.id
+          if lob.type=='admin':
+              return HttpResponse('''<script>alert('Successfully Logined');window.location='/charity/adminHome/'</script>''')
+          elif lob.type=='charity':
+              return HttpResponse('''<script>alert('Successfully Logined');window.location='/charity/charityHome/'</script>''')
+          elif lob.type=='user':
+              return HttpResponse('''<script>alert('Successfully Logined');window.location='/charity/userHome/'</script>''')
+          else:
+              return HttpResponse(
+                  '''<script>alert('Pending User');window.location='/charity/login/'</script>''')
+
+
+    else:
+        return HttpResponse('''<script>alert('Invalid Function');window.location='/charity/Login/'</script>''')
+
+
+def admin_change_password(request):
+    return render(request, "admin/changePass.html")
+def admin_change_password_post(request):
+    current_password=request.POST['textfield']
+    new_password=request.POST['textfield2']
+    confirm_password=request.POST['textfield3']
+    res=Login.objects.filter(id=request.session['lid'],password=current_password)
+
+    if res.exists():
+        res = Login.objects.get(id=request.session['lid'], password=current_password)
+
+        if new_password==confirm_password:
+            res = Login.objects.filter(id=request.session['lid']).update(password=confirm_password)
+
+            return HttpResponse('''<script>alert('Password changed');window.location='/charity/login/'</script>''')
+        else:
+            return HttpResponse('''<script>alert('Failed');window.location='/charity/admin_change_password/'</script>''')
+    else:
+        return HttpResponse('''<script>alert('Failed');window.location='/charity/admin_change_password/'</script>''')
+
+
+
+def view_reg_charity(request):
+    res=Charity.objects.filter(status='pending')
+    return render(request, "admin/ViewRegisteredCharityapproveReject.html",{'data':res})
+
+def view_reg_charity_post(request):
+    search=request.POST['textfield']
+    return render(request,"admin/ViewRegisteredCharityapproveReject.html")
+
+def approve_charity(request,id):
+    res=Charity.objects.filter(LOGIN__id=id).update(status='approved')
+    std=Login.objects.filter(id=id).update(type="charity")
+    return HttpResponse('''<script>alert('Approved Successfully');window.location='/charity/view_reg_charity/'</script>''')
+def reject_charity(request,id):
+    res=Charity.objects.filter(LOGIN__id=id).update(status='rejected')
+    std=Login.objects.filter(id=id).update(type="charity")
+    return HttpResponse('''<script>alert('Rejected Successfully');window.location='/charity/view_reg_charity/'</script>''')
+def approve_charityTwo(request,id):
+    res=Charity.objects.filter(LOGIN__id=id).update(status='approved')
+    std=Login.objects.filter(id=id).update(type="charity")
+    return HttpResponse('''<script>alert('Approved Successfully');window.location='/charity/view_reg_charity/'</script>''')
+def reject_charityTwo(request,id):
+    res=Charity.objects.filter(LOGIN__id=id).update(status='rejected')
+    std=Login.objects.filter(id=id).update(type="charity")
+    return HttpResponse('''<script>alert('Rejected Successfully');window.location='/charity/view_reg_charity/'</script>''')
+
+
+def view_approved_charity(request):
+    res = Charity.objects.filter(status='approved')
+    return render(request,"admin/ViewApprovedCharity.html",{'data':res})
+
+
+def view_approved_charity_post(request):
+    search=request.POST['textfield']
+    return render(request,"admin/ViewApprovedCharity.html")
+
+
+def view_rejected_charity(request):
+    res = Charity.objects.filter(status='rejected')
+    return render(request,"admin/ViewRejectedCharity.html",{'data':res})
+def view_rejected_charity_post(request):
+    search=request.POST['textfield']
+    return render(request,"admin/ViewRejectedCharity.html")
+
+def view_reg_users(request):
+    res=User.objects.all()
+
+    return render(request,"admin/RegisteredUsers.html",{'data':res})
+def view_reg_users_post(request):
+    name=request.POST["textfield"]
+    res = User.objects.filter(name__contains=name)
+
+    return render(request, "admin/RegisteredUsers.html", {'data': res})
+
+def view_cmp(request):
+    res=Complaints.objects.all()
+    return render(request,"admin/complaintsViewReply.html",{'data':res})
+def view_cmp_post(request):
+    search = request.POST['textfield']
+    search2 = request.POST['textfield2']
+    res = Complaints.objects.filter(date__range=[search, search2])
+    return render(request,"admin/complaintsViewReply.html",{'data':res})
+
+def send_reply(request,id):
+    res=Complaints.objects.get(id=id)
+    return render(request,"admin/complaintReply.html",{"data":res})
+def send_reply_post(request):
+    id=request.POST['id']
+    reply=request.POST['textarea']
+    res=Complaints.objects.get(id=id)
+    res.reply=reply
+    res.status='replied'
+    res.save()
+    return HttpResponse('''<script>alert('Replied');window.location='/charity/view_cmp/'</script>''')
+
+def view_feedback(request):
+    res=Feedback.objects.all()
+    return render(request,"admin/ViewFeedbackAboutCharity.html",{'data':res})
+def view_feedback_post(request):
+    # from_date = request.POST['textfield']
+    # to_date = request.POST['textfield2']
+    search = request.POST['textfield']
+    search2 = request.POST['textfield2']
+    res = Feedback.objects.filter(date__range=[search, search2])
+    return render(request,"admin/ViewFeedbackAboutCharity.html",{"data":res})
+
+def view_review_rating(request):
+    res=Review_Rating.objects.all()
+    return render(request,"admin/viewReviewRating.html",{'data':res})
+def view_review_rating_post(request):
+    search = request.POST['textfield']
+    search2 = request.POST['textfield2']
+    res = Review_Rating.objects.filter(date__range=[search, search2])
+    return render(request,"admin/viewReviewRating.html",{"data":res})
+
+def view_donations(request):
+    res=Donate.objects.all()
+
+    return render(request,"admin/ViewDonationsAdmin.html",{'data':res})
+def view_donations_post(request):
+    from_date = request.POST['textfield']
+    to_date = request.POST['textfield2']
+    return render(request,"admin/ViewDonationsAdmin.html")
+#========================================================================
+#charity
+def charityHome(request):
+    return render(request,"charity/charityHome.html")
+
+def registration(request):
+    return render(request,"charity/CharitySignup.html")
+def registration_post(request):
+    charity_name=request.POST['textfield']
+
+    logo=request.FILES['fileField']
+    fs=FileSystemStorage()
+    fsave=fs.save(logo.name,logo)
+
+    email=request.POST['textfield2']
+    phone=request.POST['textfield3']
+    license_no=request.POST['textfield4']
+    place=request.POST['textfield5']
+    post=request.POST['textfield6']
+    pin=request.POST['textfield7']
+    password=request.POST['textfield8']
+
+
+
+
+
+    l = Login()
+    l.username = email
+    l.password = password
+    l.type = "pending"
+    l.save()
+
+    c=Charity()
+    c.charity_name=charity_name
+    c.logo=fsave
+    c.email=email
+    c.phone=phone
+    c.license_no=license_no
+    c.place=place
+    c.post=post
+    c.pin=pin
+    c.LOGIN=l
+    c.status='pending'
+    c.save()
+
+    return HttpResponse('''<script>alert('Successfully Registered');window.location='/charity/charityHome/'</script>''')
+
+
+def change_pwd(request):
+    return render(request, "charity/changePassCharity.html")
+def change_pwd_post(request):
+    current_password = request.POST['textfield']
+    new_password = request.POST['textfield2']
+    confirm_password = request.POST['textfield3']
+    res = Login.objects.filter(id=request.session['lid'], password=current_password)
+
+    if res.exists():
+        res = Login.objects.get(id=request.session['lid'], password=current_password)
+
+        if new_password == confirm_password:
+            res = Login.objects.filter(id=request.session['lid']).update(password=confirm_password)
+
+            return HttpResponse('''<script>alert('Password changed');window.location='/charity/login/'</script>''')
+        else:
+            return HttpResponse(
+                '''<script>alert('Failed');window.location='/charity/changePassword/'</script>''')
+    else:
+        return HttpResponse('''<script>alert('Failed');window.location='/charity/changePassword/'</script>''')
+
+
+
+
+def manage_profile_view(request):
+    ob=Charity.objects.get(LOGIN=request.session["lid"])
+    return render(request,"charity/ManageProfileViewCharity.html",{"data":ob})
+# def manage_profile_view_post(request):
+#     search=request.POST['textfield']
+#     return render(request,"charity/ManageProfileViewCharity.html")
+
+def manage_profile_update(request):
+    ob=Charity.objects.get(LOGIN=request.session["lid"])
+    return render(request,"charity/ManageProfileUpdateCharity.html",{"data":ob})
+def manage_profile_update_post(request):
+    charity_name = request.POST['textfield']
+
+    email = request.POST['textfield2']
+    phone = request.POST['textfield3']
+    license_no = request.POST['textfield5']
+    place = request.POST['textfield4']
+    post = request.POST['textfield6']
+    pin = request.POST['textfield7']
+
+    if 'file' in request.FILES:
+        logo = request.FILES['fileField']
+        fs=FileSystemStorage()
+        fsave=fs.save(logo.name,logo)
+        ob=Charity.objects.get(LOGIN=request.session['lid'])
+        ob.charity_name=charity_name
+        ob.logo=fsave
+        ob.email=email
+        ob.phone=phone
+        ob.license_no=license_no
+        ob.place=place
+        ob.post=post
+        ob.pin=pin
+        ob.save()
+    else:
+        ob = Charity.objects.get(LOGIN=request.session['lid'])
+        ob.charity_name = charity_name
+
+        ob.email = email
+        ob.phone = phone
+        ob.license_no = license_no
+        ob.place = place
+        ob.post = post
+        ob.pin = pin
+        ob.save()
+
+    return HttpResponse('''<script>alert('Successfully updated');window.location='/charity/charityHome/'</script>''')
+
+
+def manage_donation_req_add(request):
+    return render(request,"charity/ManageDonationRequestCharity.html")
+def manage_donation_req_add_post(request):
+
+    title=request.POST['textfield2']
+    purpose=request.POST['textfield3']
+    description=request.POST['textarea']
+    # date=request.POST['textfield5']
+    amount=request.POST['textfield6']
+
+    ob=Donation_Request()
+    ob.title=title
+    ob.description=description
+    ob.purpose=purpose
+    ob.date=datetime.datetime.now().date()
+    ob.amount_others=amount
+    ob.CHARITY=Charity.objects.get(LOGIN=request.session["lid"])
+    ob.save()
+
+    return HttpResponse('''<script>alert('Donation Request added');window.location='/charity/manage_donation_req_add/'</script>''')
+
+def manage_donation_req_view(request):
+    ob=Donation_Request.objects.filter(CHARITY__LOGIN=request.session["lid"])
+    return render(request,"charity/ViewDonationRequestCharity.html",{"data":ob})
+def manage_donation_req_view_post(request):
+    from_date = request.POST['textfield']
+    to_date = request.POST['textfield2']
+    ob = Donation_Request.objects.filter(CHARITY__LOGIN=request.session["lid"],date__range=(from_date,to_date))
+    return render(request, "charity/ViewDonationRequestCharity.html", {"data": ob})
+
+
+def manage_donation_req_edit(request,reid):
+    ob=Donation_Request.objects.get(id=reid)
+    return render(request,"charity/ManageDonationRequestEditCharity.html",{"data":ob})
+def manage_donation_req_edit_post(request):
+
+    title = request.POST['textfield2']
+    purpose = request.POST['textfield3']
+    description = request.POST['textarea']
+    amount = request.POST['textfield6']
+    reqid=request.POST["reid"]
+
+    ob=Donation_Request.objects.get(id=reqid)
+    ob.title=title
+    ob.description=description
+    ob.purpose=purpose
+    ob.amount_others=amount
+    ob.save()
+
+    return HttpResponse('''<script>alert('Successfully Edited');window.location='/charity/manage_donation_req_view/'</script>''')
+
+def manage_donation_req_del(request,reid):
+    ob=Donation_Request.objects.get(id=reid).delete()
+
+    return HttpResponse('''<script>alert('Donation Request Deleted');window.location='/charity/manage_donation_req_view/'</script>''')
+
+
+def  view_donation_amount(request):
+    return render(request,"charity/ViewDonationsUserOthersCharity.html")
+def  view_donation_amount_post(request):
+    from_date = request.POST['textfield']
+    to_date = request.POST['textfield2']
+    return render(request,"charity/ViewDonationsUserOthersCharity.html")
+
+def view_don_req_acc_rej(request):
+    return render(request,"charity/ViewDonationRequestCharity.html")
+def view_don_req_acc_rej_post(request):
+    from_date = request.POST['textfield']
+    to_date = request.POST['textfield2']
+    return render(request,"charity/ViewDonationRequestCharity.html")
+
+
+def  manage_category_add(request):
+    return render(request,"charity/ManageCategoryAddCharity.html")
+def manage_category_add_post(request):
+    category=request.POST['textfield']
+    limit=request.POST['textfield2']
+    return HttpResponse("ok")
+
+def  Manage_category_edit(request):
+    return render(request,"charity/ManageCategoryEditCharity.html")
+def Manage_category_edit_post(request):
+    category = request.POST['textfield']
+    limit = request.POST['textfield2']
+    return HttpResponse("ok")
+
+def manage_category_view(request):
+    return render(request,"charity/ManageCategoryViewCharity.html")
+def manage_category_view_post(request):
+    search=request.POST['textfield']
+    return render(request,"charity/ManageCategoryViewCharity.html")
+
+#=====================================================================================
+#User
+def userHome(request):
+    return render(request,"user/userHome.html")
+
+def regstraion(request):
+    return render(request,"user/userSignup.html")
+def regstraion_post(request):
+    name=request.POST['textfield2']
+    email=request.POST['textfield4']
+    phone=request.POST['textfield']
+    place=request.POST['textfield5']
+    password=request.POST['textfield8']
+
+
+    l=Login()
+    l.username=email
+    l.password=password
+    l.type="user"
+    l.save()
+
+    u=User()
+    u.name=name
+    u.email=email
+    u.phone=phone
+    u.place=place
+    u.LOGIN=l
+    u.save()
+
+
+
+
+
+    return HttpResponse('''<script>alert('Successfully Registered');window.location='/charity/UserHome/'</script>''')
+
+def chng_pwd(request):
+    return render(request,"user/changePassUser.html")
+def chng_pwd_post(request):
+    current_password = request.POST['textfield']
+    new_password = request.POST['textfield2']
+    confirm_password = request.POST['textfield3']
+    res = Login.objects.filter(id=request.session['lid'], password=current_password)
+
+    if res.exists():
+        res = Login.objects.get(id=request.session['lid'], password=current_password)
+
+        if new_password == confirm_password:
+            res = Login.objects.filter(id=request.session['lid']).update(password=confirm_password)
+
+            return HttpResponse('''<script>alert('Password changed');window.location='/charity/login/'</script>''')
+        else:
+            return HttpResponse('''<script>alert('Failed');window.location='/charity/chng_pwd/'</script>''')
+    else:
+        return HttpResponse('''<script>alert('Failed');window.location='/charity/chng_pwd/'</script>''')
+
+
+def profile_mng_view(request):
+    a=User.objects.get(LOGIN_id=request.session['lid'])
+    return render(request,"user/ProfileViewUser.html",{'data':a})
+def profile_mng_view_post(request):
+    name = request.POST['textfield']
+    email = request.POST['textfield2']
+    phone = request.POST['textfield4']
+    place = request.POST['textfield3']
+    return render(request,"user/ProfileViewUser.html")
+
+
+def profile_mng_update(request):
+    a=User.objects.get(LOGIN_id=request.session['lid'])
+    return render(request,"user/ProfileViewUpdateUser.html",{'data':a})
+def profile_mng_update_post(request):
+    name = request.POST['textfield']
+    email = request.POST['textfield2']
+    phone = request.POST['textfield4']
+    place = request.POST['textfield3']
+
+    res=User.objects.get(LOGIN_id=request.session['lid'])
+    res.name=name
+    res.email=email
+    res.phone=phone
+    res.place=place
+    res.save()
+
+    return HttpResponse('''<script>alert('Edited');window.location='/charity/userHome/'</script>''')
+
+def view_appproved_charity(request):
+    ob=Charity.objects.filter(status="approved")
+    return render(request,"user/ViewApprovedCharityUser.html",{"data": ob})
+def view_appproved_charity_post(request):
+    search=request.POST['textfield']
+    return render(request,"user/ViewApprovedCharityUser.html")
+
+def view_donation_req_donate(request):
+    res=Donation_Request.objects.all()
+    return render(request,"user/ViewDonationRequest&Donate.html",{"data":res})
+def view_donation_req_donate_post(request):
+
+    from_date = request.POST['textfield']
+    to_date = request.POST['textfield2']
+    search = request.POST['textfield']
+    search2 = request.POST['textfield2']
+    res = Complaints.objects.filter(date__range=[search, search2])
+    return render(request,"user/ViewDonationRequest&Donate.html",{"data":res})
+
+def  mng_donation_send_amount(request,id):
+    res=Donation_Request.objects.get(id=id)
+
+    return render(request,"user/ManageDonationReqDonateAmountUser.html",{"data":res})
+def  mng_donation_send_amount_post(request):
+    amount=request.POST['textfield']
+    id=request.POST['id']
+    res2= Donate_Amount()
+    res2.amount=amount
+    res2.DONATION_REQUEST=Donation_Request.objects.get(id=id)
+    res2.status="donated"
+    res2.date=datetime.datetime.now().date()
+    res2.USER=User.objects.get(LOGIN_id=request.session['lid'])
+    res2.save()
+
+
+    return HttpResponse('''<script>alert('Donation Succesfull');window.location='/charity/userHome/'</script>''')
+
+def mng_donation_send_others(request,id):
+    res=Donation_Request.objects.get(id=id)
+
+
+    return render(request,"user/ManageDonationReqDonateOthersUser.html",{'data':res})
+def mng_donation_send_others_post(request):
+    id=request.POST['id']
+    others=request.POST['others']
+    units=request.POST['units']
+
+    res2 = Donate_Others()
+    res2.others = others
+    res2.unit = units
+    res2.DONATION_REQUEST = Donation_Request.objects.get(id=id)
+    res2.status = "donated"
+    res2.date = datetime.datetime.now().date()
+    res2.USER = User.objects.get(LOGIN_id=request.session['lid'])
+    res2.save()
+    return HttpResponse('''<script>alert('Donation Succesfull');window.location='/charity/userHome/'</script>''')
+
+def  mng_donation_view(request):
+    res=Donation_Request.objects.all()
+    return render(request,"user/ViewDonationsUser.html",{"data":res})
+def  mng_donation_view_post(request):
+    search=request.POST['textfield']
+    return render(request,"user/ViewDonationsUser.html")
+
+def  mng_cmp_send(request):
+
+    return render(request,"user/ManageComplaintSendUser.html")
+def  mng_cmp_send_post(request):
+    complaint=request.POST['textfield']
+    date=datetime.datetime.now().date()
+    reply="pending"
+    status="pending"
+    userid=User.objects.get(LOGIN=request.session['lid'])
+
+    ob=Complaints()
+    ob.complaint=complaint
+    ob.date=date
+    ob.reply=reply
+    ob.status=status
+    ob.USER=userid
+    ob.save()
+
+    return HttpResponse('''<script>alert('Complaint successfully registered');window.location='/charity/userHome/'</script>''')
+
+
+def mng_cmp_view(request):
+    ob=Complaints.objects.filter(USER__LOGIN=request.session["lid"])
+    return render(request,"user/ManageComplaintViewReplyUser.html",{"data":ob})
+def mng_cmp_view_post(request):
+    from_date = request.POST['textfield']
+    to_date = request.POST['textfield2']
+    ob = Complaints.objects.filter(USER__LOGIN=request.session["lid"],date__range=(from_date,to_date))
+    return render(request, "user/ManageComplaintViewReplyUser.html", {"data": ob})
+def  send_review(request):
+    return render(request,"user/SendReviewRatingUser.html")
+def  send_review_post(request):
+    review=request.POST['textfield']
+    rating=request.POST['textfield2']
+    date=datetime.datetime.now().date()
+    userid=User.objects.get(LOGIN=request.session['lid'])
+    ob=Review_Rating()
+    ob.date=date
+    ob.review=review
+    ob.rating=rating
+    ob.USER=userid
+    ob.save()
+
+    return HttpResponse('''<script>alert('Review & Rating successfully sent');window.location='/charity/userHome/'</script>''')
+
+def  send_feedback(request,cid):
+    return render(request,"user/SendFeedbackAboutCharityUser.html",{'cid':cid})
+def  send_feedback_post(request):
+    feedback=request.POST['textfield']
+    date=datetime.datetime.now().date()
+    userid=User.objects.get(LOGIN=request.session['lid'])
+    charityid=request.POST["cid"]
+    ob=Feedback()
+    ob.date=date
+    ob.feedback=feedback
+    ob.CHARITY_id=charityid
+    ob.USER=userid
+    ob.save()
+
+    return HttpResponse('''<script>alert('Feedback Registered');window.location='/charity/userHome/'</script>''')
+
+
+
+def user_send_amout(request,id):
+    a=Charity.objects.get(id=id)
+    return render(request,'user/send_charity_amount.html',{'data':a})
+
+
+
+
+
+def user_send_amout_post(request):
+
+    id=request.POST['id']
+    amount=request.POST['amount']
+    a=Donate()
+    a.amount=amount
+    a.CHARITY=Charity.objects.get(id=id)
+    a.USER=User.objects.get(LOGIN_id=request.session['lid'])
+    a.date=datetime.datetime.now().today().date()
+    a.save()
+
+
+    return HttpResponse('''<script>alert('Add');window.location='/charity/userHome/'</script>''')
+
+
+def user_send_others(request,id):
+    a=Charity.objects.get(id=id)
+    return render(request,'user/send_charity_other.html',{'data':a})
+
+def user_send_other_post(request):
+
+    id=request.POST['id']
+    others=request.POST['select']
+    a=Donate2()
+    a.others=others
+    a.CHARITY=Charity.objects.get(id=id)
+    a.USER=User.objects.get(LOGIN_id=request.session['lid'])
+    a.date=datetime.datetime.now().today().date()
+    a.save()
+
+
+    return HttpResponse('''<script>alert('Added');window.location='/charity/userHome/'</script>''')
+
+
