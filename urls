@@ -32,8 +32,24 @@ urlpatterns = [
     path('view_feedback_post/', views.view_feedback_post),
     path('view_review_rating/',views.view_review_rating),
     path('view_review_rating_post/',views.view_review_rating_post),
-    path('view_donations/',views.view_donations),
-    path('view_donations_post/',views.view_donations_post),
+    path('view_donations_amount/',views.view_donations_amount),
+    path('view_donations_amount_post/',views.view_donations_amount_post),
+    path('view_donations_others/', views.view_donations_others),
+    path('view_donations_others_post/', views.view_donations_others_post),
+    path('view_casual_donations_amount/',views.view_casual_donations_amount),
+    path('view_casual_donations_amount_post/',views.view_casual_donations_amount_post),
+    path('view_casual_donations_others/', views.view_casual_donations_others),
+    path('view_casual_donations_others_post/', views.view_casual_donations_others_post),
+    path('manage_category_add/',views.manage_category_add),
+    path('manage_category_add_post/',views.manage_category_add_post),
+    path('Manage_category_edit/<id>',views.Manage_category_edit),
+    path('Manage_category_edit_post/',views.Manage_category_edit_post),
+    path('manage_category_view/',views.manage_category_view),
+    path('manage_category_view_post/',views.manage_category_view_post),
+    path('Manage_category_delete/<id>',views.Manage_category_delete),
+
+
+
     #===============================================================
     #charity
     path('charityHome/', views.charityHome),
@@ -58,13 +74,14 @@ urlpatterns = [
     path('view_donation_amount/',views.view_donation_amount),
     path('view_donation_amount_post/',views.view_donation_amount_post),
     path('view_don_req_acc_rej/',views.view_don_req_acc_rej),
+    path('accept_don_req_other/<id>',views.accept_don_req_other),
+    path('reject_don_req_other/<id>',views.reject_don_req_other),
     path('view_don_req_acc_rej_post/',views.view_don_req_acc_rej_post),
-    path('manage_category_add/',views.manage_category_add),
-    path('manage_category_add_post/',views.manage_category_add_post),
-    path('Manage_category_edit/',views.Manage_category_edit),
-    path('Manage_category_edit_post/',views.Manage_category_edit_post),
-    path('manage_category_view/',views.manage_category_view),
-    path('manage_category_view_post/',views.manage_category_view_post),
+    path('accept_don_req/<id>',views.accept_don_req),
+    path('reject_don_req/<id>',views.reject_don_req),
+
+
+
 #===========================================================================================
     #user
     path('userHome/', views.userHome),
@@ -86,8 +103,10 @@ urlpatterns = [
     path('mng_donation_send_amount_post/', views.mng_donation_send_amount_post),
     path('mng_donation_send_others/<id>', views.mng_donation_send_others),
     path('mng_donation_send_others_post/', views.mng_donation_send_others_post),
-    path('mng_donation_view/', views.mng_donation_view),
-    path('mng_donation_view_post/', views.mng_donation_view_post),
+    path('mng_donation_amount_view/', views.mng_donation_amount_view),
+    path('mng_donation_amount_view_post/', views.mng_donation_amount_view_post),
+    path('mng_donation_other_view/', views.mng_donation_other_view),
+    path('mng_donation_other_view_post/', views.mng_donation_other_view_post),
     path('mng_cmp_send/', views.mng_cmp_send),
     path('mng_cmp_send_post/', views.mng_cmp_send_post),
     path('mng_cmp_view/', views.mng_cmp_view),
@@ -96,9 +115,6 @@ urlpatterns = [
     path('send_review_post/', views.send_review_post),
     path('send_feedback/<cid>', views.send_feedback),
     path('send_feedback_post/', views.send_feedback_post),
-
-
-
     path('user_send_amout_post/', views.user_send_amout_post),
     path('user_send_other_post/', views.user_send_other_post),
     path('user_send_amout/<id>', views.user_send_amout),
