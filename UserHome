@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>User Home</h1>
+ <a href="/charity/chng_pwd/">Change Password </a><br><br>
+
+<a href="/charity/profile_mng_view/">View Profile</a><br><br>
+<a href="/charity/profile_mng_update/">Update Profile</a><br><br>
+<a href="/charity/view_appproved_charity/">View Approved Charity</a><br><br>
+<a href="/charity/view_donation_req_donate/">View Donation Request and Donate</a><br><br>
+{#<a href="/charity/mng_donation_send_amount/">Send Amount</a><br><br>#}
+{#<a href="/charity/mng_donation_send_others/">Send Others </a><br><br>#}
+<a href="/charity/mng_donation_amount_view/">View Amount Donations </a><br><br>
+<a href="/charity/mng_donation_other_view/">View Other Donations </a><br><br>
+<a href="/charity/mng_cmp_send/">Send Complaints</a><br><br>
+<a href="/charity/mng_cmp_view/">View Reply</a><br><br>
+<a href="/charity/send_review/">Send Review and Rating</a><br><br>
+
+</body>
+</html>
